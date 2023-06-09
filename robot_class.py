@@ -1,4 +1,6 @@
 from math import *
+import numpy as np
+from collections import namedtuple
 import random
 
 
@@ -25,11 +27,12 @@ class robot:
     #
     def __init__(self, world_size = 100.0, measurement_range = 30.0,
                  motion_noise = 1.0, measurement_noise = 1.0):
+        self.point = namedtuple('point', ['x', 'y'])
         self.measurement_noise = 0.0
         self.world_size = world_size
         self.measurement_range = measurement_range
-        self.x = world_size / 2.0
-        self.y = world_size / 2.0
+        self.point.x = world_size / 2.0
+        self.point.y = world_size / 2.0
         self.motion_noise = motion_noise
         self.measurement_noise = measurement_noise
         self.landmarks = []
@@ -47,14 +50,14 @@ class robot:
     #
     def move(self, dx, dy):
         
-        x = self.x + dx + self.rand() * self.motion_noise
-        y = self.y + dy + self.rand() * self.motion_noise
+        x = self.point.x + dx + self.rand() * self.motion_noise
+        y = self.point.y + dy + self.rand() * self.motion_noise
         
         if x < 0.0 or x > self.world_size or y < 0.0 or y > self.world_size:
             return False
         else:
-            self.x = x
-            self.y = y
+            self.point.x = x
+            self.point.y = y
             return True
 
 
@@ -80,16 +83,24 @@ class robot:
         measurements = []
         
         ## TODO: iterate through all of the landmarks in a world
-        
+        for idx, landmark in enumerate(self.landmarks):
         ## TODO: For each landmark
         ## 1. compute dx and dy, the distances between the robot and the landmark
         ## 2. account for measurement noise by *adding* a noise component to dx and dy
         ##    - The noise component should be a random value between [-1.0, 1.0)*measurement_noise
         ##    - Feel free to use the function self.rand() to help calculate this noise component
+        ##    - It may help to reference the `move` function for noise calculation
         ## 3. If either of the distances, dx or dy, fall outside of the internal var, measurement_range
         ##    then we cannot record them; if they do fall in the range, then add them to the measurements list
         ##    as list.append([index, dx, dy]), this format is important for data creation done later
-        
+            dx = landmark.x - self.point.x
+            dy = landmark.y - self.point.y
+            dy += self.rand() * self.measurement_noise
+            dx += self.rand() * self.measurement_noise
+            robot_dist_to_landmark = np.sqrt(dx**2 + dy**2)
+            # robot_dist_to_landmark = robot_dist_to_landmark * self.rand() * self.measurement_noise
+            if abs(robot_dist_to_landmark) <= self.measurement_range:
+                measurements.append([idx, dx, dy])
         ## TODO: return the final, complete list of measurements
         return measurements
 
@@ -100,15 +111,17 @@ class robot:
     #
     def make_landmarks(self, num_landmarks):
         self.landmarks = []
-        for i in range(num_landmarks):
-            self.landmarks.append([round(random.random() * self.world_size),
-                                   round(random.random() * self.world_size)])
+        for _ in range(num_landmarks):
+            landmark_point = namedtuple('point', ['x', 'y'], defaults=[0.0, 0.0]) 
+            landmark_point.x = round(random.random() * self.world_size)
+            landmark_point.y = round(random.random() * self.world_size)
+            self.landmarks.append(landmark_point)
         self.num_landmarks = num_landmarks
 
 
     # called when print(robot) is called; prints the robot's location
     def __repr__(self):
-        return 'Robot: [x=%.5f y=%.5f]'  % (self.x, self.y)
+        return "Robot: [x=%.5f y=%.5f]" % (self.point.x, self.point.y)
 
 
 

@@ -40,10 +40,14 @@ def display_world(world_size, position, landmarks=None):
     if(landmarks is not None):
         # loop through all path indices and draw a dot (unless it's at the car's location)
         for pos in landmarks:
-            if(pos != position and pos.__name__ is 'point'):
-                ax.text(pos.x, pos.y, 'x', ha='center', va='center', color='purple', fontsize=20)
-            elif (pos != position):
-                ax.text(pos[0], pos[1], 'x', ha='center', va='center', color='purple', fontsize=20)
+            try:
+
+                if(pos != position and pos.__name__ == 'point'):
+                    ax.text(pos.x, pos.y, 'x', ha='center', va='center', color='purple', fontsize=20)
+            except AttributeError as e:
+                print (f"{e}, tuple is used to display the features insted of namedtuple point")
+                if (pos != position):
+                    ax.text(pos[0], pos[1], 'x', ha='center', va='center', color='purple', fontsize=20)
     
     # Display final result
     plt.show()
@@ -98,8 +102,8 @@ def make_data(N, num_landmarks, world_size, measurement_range, motion_noise,
         complete = (sum(seen) == num_landmarks)
 
     print(' ')
-    print('Landmarks: ', r.landmarks)
-    print(r)
+    print(f'Landmark locations [x,y]: {[(landmark.x, landmark.y) for landmark in r.landmarks]}')
+    print(f'robot location: {r.point.x, r.point.y}')
 
 
     return data
