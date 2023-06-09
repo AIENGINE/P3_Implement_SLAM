@@ -40,7 +40,9 @@ def display_world(world_size, position, landmarks=None):
     if(landmarks is not None):
         # loop through all path indices and draw a dot (unless it's at the car's location)
         for pos in landmarks:
-            if(pos != position):
+            if(pos != position and pos.__name__ is 'point'):
+                ax.text(pos.x, pos.y, 'x', ha='center', va='center', color='purple', fontsize=20)
+            elif (pos != position):
                 ax.text(pos[0], pos[1], 'x', ha='center', va='center', color='purple', fontsize=20)
     
     # Display final result
