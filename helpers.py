@@ -41,7 +41,6 @@ def display_world(world_size, position, landmarks=None):
         # loop through all path indices and draw a dot (unless it's at the car's location)
         for pos in landmarks:
             try:
-
                 if(pos != position and pos.__name__ == 'point'):
                     ax.text(pos.x, pos.y, 'x', ha='center', va='center', color='purple', fontsize=20)
             except AttributeError as e:
